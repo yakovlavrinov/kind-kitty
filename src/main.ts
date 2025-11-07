@@ -9,6 +9,7 @@ let score = 0;
 let gameOver = false;
 
 // Переменные для параллакс-фона
+// @ts-ignore
 let background: Phaser.GameObjects.TileSprite;
 let city1plan: Phaser.GameObjects.TileSprite;
 let city2plan: Phaser.GameObjects.TileSprite;
@@ -17,6 +18,7 @@ let city4plan: Phaser.GameObjects.TileSprite;
 let light: Phaser.GameObjects.TileSprite;
 let smog1: Phaser.GameObjects.TileSprite;
 let smog2: Phaser.GameObjects.TileSprite;
+// @ts-ignore
 let sun: Phaser.GameObjects.Image;
 
 function preload(this: Phaser.Scene) {
