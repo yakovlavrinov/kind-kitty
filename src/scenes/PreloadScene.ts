@@ -1,9 +1,14 @@
-export default class PreloadScene extends Phaser.Scene {
+export class PreloadScene extends Phaser.Scene {
   constructor() {
     super("Preload");
   }
 
+   init() {
+    console.log('PreloadScene init');
+  }
+
   preload() {
+    console.log('PreloadScene preload');
     this.load.image("background", "assets/background/background.png");
     this.load.image("city1plan", "assets/background/city1plan.png");
     this.load.image("city2plan", "assets/background/city2plan.png");
@@ -42,4 +47,8 @@ export default class PreloadScene extends Phaser.Scene {
       endFrame: 7,
     });
   }
+
+  create() {
+    console.log('PreloadScene create');
+    this.scene.start('MainScene');}
 }

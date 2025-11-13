@@ -1,3 +1,5 @@
+import { MainScene } from "../scenes/MainScene";
+import { PreloadScene } from "../scenes/PreloadScene";
 import { GAME_HEIGHT, GAME_WIDTH, GRAVITY } from "../utils/constants";
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
@@ -11,5 +13,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
       gravity: { x: 0, y: GRAVITY },
     },
   },
-  scene: [],
+  scene: [PreloadScene, MainScene],
 };
