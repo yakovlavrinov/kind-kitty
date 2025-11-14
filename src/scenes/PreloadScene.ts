@@ -3,12 +3,7 @@ export class PreloadScene extends Phaser.Scene {
     super("Preload");
   }
 
-   init() {
-    console.log('PreloadScene init');
-  }
-
   preload() {
-    console.log('PreloadScene preload');
     this.load.image("background", "assets/background/background.png");
     this.load.image("city1plan", "assets/background/city1plan.png");
     this.load.image("city2plan", "assets/background/city2plan.png");
@@ -49,6 +44,6 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    console.log('PreloadScene create');
-    this.scene.start('MainScene');}
+    this.scene.start("MainScene");
+  }
 }
