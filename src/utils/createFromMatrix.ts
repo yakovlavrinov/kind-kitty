@@ -19,6 +19,5 @@ export const createFromMatrix = (
       }
     }
   }
-console.log(group)
   return group;
 };
