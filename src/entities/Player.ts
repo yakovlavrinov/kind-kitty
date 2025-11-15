@@ -16,25 +16,16 @@ export class Player {
     const onGround = this.sprite.body?.blocked.down || this.sprite.body?.touching.down;
 
     if (cursors.left.isDown) {
-      this.sprite.setVelocityX(-100);
-
-      if (onGround) {
-        this.sprite.setVelocityX(-50);
-
-        this.sprite.play("kitty_walk", true);
-      }
+      this.sprite.setVelocityX(-50);
 
       onGround && this.sprite.play("kitty-walk", true);
 
       this.sprite.flipX = false;
     } else if (cursors.right.isDown) {
-      this.sprite.setVelocityX(100);
+      this.sprite.setVelocityX(50);
 
-      if (onGround) {
-        this.sprite.setVelocityX(50);
+      onGround && this.sprite.play("kitty-walk", true);
 
-        this.sprite.play("kitty_walk", true);
-      }
       this.sprite.flipX = true;
     } else {
       this.sprite.setVelocity(0);
@@ -47,5 +38,10 @@ export class Player {
 
       this.sprite.play("kitty_jump");
     }
+
+     if (!onGround && this.sprite.body?.velocity.y !== 0) {
+    // player.play('kitty_jump');
+    // Нужно заменить на анимацию падения и прописать логику чтобы не пересекалась
+  }
   }
 }
