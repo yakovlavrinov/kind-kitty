@@ -31,7 +31,7 @@ export const createPlayerAnimations = (scene: Phaser.Scene) => {
 
   scene.anims.create({
     key: "kitty_run",
-    frames: scene.anims.generateFrameNumbers("kitty-rune", {
+    frames: scene.anims.generateFrameNumbers("kitty-run", {
       start: 0,
       end: 7,
     }),
