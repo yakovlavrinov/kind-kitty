@@ -13,4 +13,4 @@ export const PLATFORM = [
   [63, 64, 65, 66],
 ];
 
-export const GROUND = [Array(27).fill(222, 0, 27)]
+export const GROUND = [Array(100).fill(222, 0, 100)]

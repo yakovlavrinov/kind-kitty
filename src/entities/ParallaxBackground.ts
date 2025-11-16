@@ -7,7 +7,10 @@ export class ParallaxBackground {
   }
 
   create() {
-    const { width, height } = this.scene.scale;
+    // const { width, height } = this.scene.scale;
+    const width = this.scene.physics.world.bounds.width
+    const height = this.scene.physics.world.bounds.height
+
 
     // Создаем слои параллакса в правильном порядке (от дальнего к ближнему)
 

@@ -35,7 +35,7 @@ export const createPlayerAnimations = (scene: Phaser.Scene) => {
       start: 0,
       end: 7,
     }),
-    frameRate: 10,
+    frameRate: 20,
     repeat: -1,
   });
 };
