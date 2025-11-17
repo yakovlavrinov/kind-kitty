@@ -14,4 +14,18 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     },
   },
   scene: [PreloadScene, MainScene],
+  scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 630,
+        height: 360,
+        
+    },
+    render: {
+        antialias: false,     // 🔥 ВЫКЛЮЧИТЬ сглаживание
+        pixelArt: true,       // 🔥 ВКЛЮЧИТЬ пиксель-арт режим
+        roundPixels: true,    // 🔥 Округление позиций
+        transparent: false,
+        clearBeforeRender: true
+    },
 };

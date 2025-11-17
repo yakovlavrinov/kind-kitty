@@ -8,7 +8,7 @@ export class MainScene extends Phaser.Scene {
   private background!: ParallaxBackground;
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private worldWidth: number = 2400
-  private worldHeight: number = 1200
+  private worldHeight: number = 360
 
   constructor() {
     super("MainScene");
@@ -20,15 +20,17 @@ export class MainScene extends Phaser.Scene {
     this.background = new ParallaxBackground(this);
     this.background.create();
 
-    const ground = createFromMatrix(this, 12, 1200, 'platforms', 24, GROUND)
+    const ground = createFromMatrix(this, 12, 360, 'platforms', 24, GROUND)
 
-    this.player = new Player(this, 100, 1100);
+    this.player = new Player(this, 100, 300);
 
     this.physics.add.collider(this.player.sprite, ground);
 
     this.cursors = this.input.keyboard!.createCursorKeys();
 
     this.setupCamera();
+    
+
   }
 
   private setupCamera() {
