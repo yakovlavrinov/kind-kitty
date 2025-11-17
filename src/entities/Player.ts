@@ -11,7 +11,7 @@ export class Player {
   constructor(scene: Phaser.Scene, x: number, y: number) {
     this.sprite = scene.physics.add.sprite(x, y, "kitty-idle");
     this.sprite.setCollideWorldBounds(true);
-    this.sprite.body?.setSize(32, 32);
+    this.sprite.body?.setSize(28, 28);
     this.runKey = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
     this.animation = ''
     this.speed = 0
@@ -44,7 +44,7 @@ export class Player {
     }
 
     if (cursors.up.isDown && onGround) {
-      this.sprite.setVelocityY(-260);
+      this.sprite.setVelocityY(-190);
 
       this.sprite.play("kitty_jump");
     }
