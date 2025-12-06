@@ -19,7 +19,7 @@ export class PreloadScene extends Phaser.Scene {
       frameHeight: 24,
     });
 
-    this.load.image("star", "assets/star.png");
+    this.load.image("star", "assets/FishFillet.png");
     this.load.image("bomb", "assets/bomb.png");
     this.load.spritesheet("kitty-idle", "assets/kitty/IDLE.png", {
       frameWidth: 80,
