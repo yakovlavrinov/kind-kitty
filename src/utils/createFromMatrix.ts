@@ -1,5 +1,3 @@
-
-
 export const createFromMatrix = (
   scene: Phaser.Scene,
   x: number,
@@ -8,16 +6,16 @@ export const createFromMatrix = (
   tileSize: number,
   matrix: number[][]
 ) => {
-  const group = scene.physics.add.staticGroup();
+  const group = scene.physics.add.staticGroup()
 
   for (let row = 0; row < matrix.length; row++) {
     for (let column = 0; column < matrix[row].length; column++) {
-      const frame = matrix[row][column];
+      const frame = matrix[row][column]
 
       if (frame !== null && frame !== undefined) {
-        group.create(x + column * tileSize, y + row * tileSize, texture, frame);
+        group.create(x + column * tileSize, y + row * tileSize, texture, frame)
       }
     }
   }
-  return group;
-};
+  return group
+}
