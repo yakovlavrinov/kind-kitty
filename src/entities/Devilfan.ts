@@ -1,5 +1,4 @@
-import { Enemy } from "./Enemy"
-
+import { Enemy } from './Enemy'
 
 export class Devilfan extends Enemy {
   constructor(scene: Phaser.Scene, x: number, y: number) {

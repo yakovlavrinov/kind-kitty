@@ -4,9 +4,14 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('tiles', 'assets/oak_woods_tileset.png');
-    this.load.tilemapTiledJSON('map', 'assets/map.json');
-    
+    // food
+    this.load.image('chicken_leg', 'assets/food/chicken_leg.png')
+    this.load.image('fish', 'assets/food/fish.png')
+    this.load.image('milk_pack', 'assets/food/milk_pack.png')
+    this.load.image('pepper_red', 'assets/food/pepper_red.png')
+    this.load.image('tiles', 'assets/oak_woods_tileset.png')
+    // level map
+    this.load.tilemapTiledJSON('level_one', 'assets/level_one.json')
 
     // background
     this.load.image('background', 'assets/background/background.png')

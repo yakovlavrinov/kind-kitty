@@ -1,4 +1,5 @@
 import { Devilfan } from '../entities/Devilfan'
+import { Food } from '../entities/Food'
 import { Kitty } from '../entities/Kitty'
 import { ParallaxBackground } from '../entities/ParallaxBackground'
 import { createAllAnimations } from '../utils/animation'
@@ -7,11 +8,11 @@ export class MainScene extends Phaser.Scene {
   private kitty!: Kitty
   private devilfan!: Devilfan
   private background!: ParallaxBackground
+  private map!: Phaser.Tilemaps.Tilemap
+  private foodGroup!: Phaser.GameObjects.Group
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys
   private worldWidth = 2400
   private worldHeight = 360
-  private stars!: Phaser.Physics.Arcade.Group
-  private bombs!: Phaser.Physics.Arcade.Group
   private scoreText!: Phaser.GameObjects.Text
   private score = 0
   private gameOver = false
@@ -26,67 +27,43 @@ export class MainScene extends Phaser.Scene {
     this.background = new ParallaxBackground(this)
     this.background.create()
 
-    const map = this.make.tilemap({ key: 'map' })
+    this.map = this.make.tilemap({ key: 'level_one' })
 
-    // Добавляем тайлсет к карте
-    // "oak_woods_tileset" - имя из поля "source" в вашем JSON
-    const tileset = map.addTilesetImage('oak_woods_tileset', 'tiles')
-    if (tileset) {
-      console.error(
-        'Tileset not found! Check names:',
-        'oak_woods_tileset should match Tiled,',
-        'tiles should match load.image() key'
-      )
-      return
-    }
+    const tileset = this.map.addTilesetImage('oak_woods_tileset', 'tiles')
 
-    // Создаем слой (имя берется из "name" в JSON)
-    const groundLayer = map.createLayer('Слой тайлов 1', tileset, 0, 0)
-    if (groundLayer) {
-      console.error('Layer not created! Available layers:')
-      map.layers.forEach((layer, index) => {
-        console.log(`[${index}] ${layer.name}`)
-      })
-      return
-    }
-    // Включаем коллизии для тайлов (если есть)
-    if (groundLayer) {
-      groundLayer.setCollisionByProperty({ collides: true })
-      // или для всех ненулевых тайлов
-      groundLayer.setCollisionByExclusion([-1, 0])
-    }
+    if (!tileset) return
+
+    const groundLayer = this.map.createLayer('ground', tileset, 0, 0)
+    const platformsLayer = this.map.createLayer('platforms', tileset, 0, 0)
+    this.map.createLayer('mountain', tileset, 0, 0)
+
+    if (!groundLayer) return
+    groundLayer.setCollisionByProperty({ collides: true })
+
+    if (!platformsLayer) return
+    platformsLayer.setCollisionByProperty({ collides: true })
+
+    this.createFood()
 
     createAllAnimations(this)
 
+    this.kitty = new Kitty(this, 1300, 90)
     this.devilfan = new Devilfan(this, 200, 100)
-    this.kitty = new Kitty(this, 300, 300)
+
     this.physics.add.collider(this.kitty, groundLayer)
     this.physics.add.collider(this.devilfan, groundLayer)
+    this.physics.add.collider(this.kitty, platformsLayer)
+    this.physics.add.collider(this.devilfan, platformsLayer)
 
-    this.stars = this.physics.add.group({
-      key: 'star',
-      repeat: 11,
-      setXY: { x: 100, y: 200, stepX: 70 },
-    })
-    this.stars.children.iterate((child) => {
-      if (child instanceof Phaser.Physics.Arcade.Sprite) {
-        child.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8))
-        //   child.setCollideWorldBounds(true)
-      }
+    this.scoreText = this.add
+      .text(16, 16, 'score: 0', {
+        fontSize: '32px',
+        color: '#000',
+      })
+      .setScrollFactor(0)
+      .setDepth(100)
 
-      return true
-    })
-
-    this.bombs = this.physics.add.group()
-
-    this.scoreText = this.add.text(16, 16, 'score: 0', {
-      fontSize: '32px',
-      color: '#000',
-    })
-
-    this.physics.add.overlap(this.kitty, this.stars, this.collectStar, undefined, this)
-
-    this.physics.add.collider(this.kitty, this.bombs, this.hitBomb, undefined, this)
+    this.physics.add.overlap(this.kitty, this.foodGroup, this.collectFood, undefined, this)
 
     this.cursors = this.input.keyboard!.createCursorKeys()
 
@@ -112,40 +89,66 @@ export class MainScene extends Phaser.Scene {
 
   update() {
     if (this.gameOver) return
+
     this.kitty.update(this.cursors)
     this.background.update(this.kitty.body?.velocity.x || 0)
   }
 
-  collectStar: Phaser.Types.Physics.Arcade.ArcadePhysicsCallback = (playerObj, starObj) => {
-    const player = playerObj as Phaser.Physics.Arcade.Sprite
-    const star = starObj as Phaser.Physics.Arcade.Sprite
-    star.disableBody(true, true)
+  createFood() {
+    const foodLayer = this.map.getObjectLayer('food')
 
-    this.score += 10
-    this.scoreText.setText(`Score: ${this.score}`)
+    if (!foodLayer) return
 
-    if (this.stars.countActive(true) === 0) {
-      this.stars.children.iterate((child) => {
-        if (child instanceof Phaser.Physics.Arcade.Sprite) {
-          child.enableBody(true, child.x, 0, true, true)
-        }
-        return true
-      })
-      const x = player.x < 400 ? Phaser.Math.Between(400, 800) : Phaser.Math.Between(0, 400)
+    this.foodGroup = this.add.group({ classType: Food })
 
-      const bomb = this.bombs.create(x, 16, 'bomb')
-      bomb.setBounce(1)
-      bomb.setCollideWorldBounds(true)
-      bomb.setVelocity(Phaser.Math.Between(-200, 200), 20)
-      bomb.allowGravity = false
-    }
+    foodLayer.objects.forEach((obj: Phaser.Types.Tilemaps.TiledObject) => {
+      // Безопасная проверка координат
+      if (!obj.x || !obj.y || !obj.type) {
+        console.warn('Invalid food object:', obj)
+        return
+      }
+
+      switch (obj.type) {
+        case 'chicken_leg':
+          this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'chicken_leg', 20))
+          break
+        case 'fish':
+          this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'fish', 10))
+          break
+        case 'milk_pack':
+          this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'milk_pack', 100))
+          break
+        case 'pepper_red':
+          this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'pepper_red', -10))
+          break
+        default:
+          console.warn('Unknown food type:', obj.type)
+          return
+      }
+    })
   }
 
-  hitBomb: Phaser.Types.Physics.Arcade.ArcadePhysicsCallback = (player) => {
-    this.physics.pause()
-    if (player instanceof Phaser.Physics.Arcade.Sprite) {
-      player.setTint(0xff0000)
+  collectFood: Phaser.Types.Physics.Arcade.ArcadePhysicsCallback = (_player, starObj) => {
+    const food = starObj as Phaser.GameObjects.Sprite
+
+    switch (food.texture.key) {
+      case 'chicken_leg':
+        this.score += 20
+        break
+      case 'fish':
+        this.score += 10
+        break
+      case 'milk_pack':
+        this.score += 100
+        break
+      case 'pepper_red':
+        this.score -= 10
+        break
+      default:
+        console.warn('Unknown food ')
     }
-    this.gameOver = true
+    food.destroy()
+
+    this.scoreText.setText(`Score: ${this.score}`)
   }
 }
