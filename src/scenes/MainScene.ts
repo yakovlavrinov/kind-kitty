@@ -48,7 +48,9 @@ export class MainScene extends Phaser.Scene {
     createAllAnimations(this)
 
     this.kitty = new Kitty(this, 1300, 90)
+    this.kitty.play('kitty_idle', true)
     this.devilfan = new Devilfan(this, 200, 100)
+    this.devilfan.play('devilfan_idle', true)
 
     this.physics.add.collider(this.kitty, groundLayer)
     this.physics.add.collider(this.devilfan, groundLayer)
@@ -110,16 +112,16 @@ export class MainScene extends Phaser.Scene {
 
       switch (obj.type) {
         case 'chicken_leg':
-          this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'chicken_leg', 20))
+          this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'chicken-leg', 20))
           break
         case 'fish':
           this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'fish', 10))
           break
         case 'milk_pack':
-          this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'milk_pack', 100))
+          this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'milk-pack', 100))
           break
         case 'pepper_red':
-          this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'pepper_red', -10))
+          this.foodGroup.add(new Food(this, obj.x!, obj.y!, 'pepper-red', -10))
           break
         default:
           console.warn('Unknown food type:', obj.type)

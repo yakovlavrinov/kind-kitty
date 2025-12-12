@@ -6,8 +6,6 @@ export abstract class Character extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this)
 
     this.setCollideWorldBounds(true)
-
-    this.play(`${texture}_idle`, true)
   }
 
   abstract update(...arg: unknown[]): void
