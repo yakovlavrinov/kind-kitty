@@ -146,8 +146,6 @@ export class MainScene extends Phaser.Scene {
       case 'pepper_red':
         this.score -= 10
         break
-      default:
-        console.warn('Unknown food ')
     }
     food.destroy()
 
