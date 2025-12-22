@@ -14,10 +14,11 @@ export class Kitty extends Character {
     this.body?.setSize(20, 28)
     this.body?.setOffset(30, 20)
     this.runKey = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
+    
   }
 
   update(cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
-    const onGround = this.body?.blocked.down || this.body?.touching.down
+    const onGround = (this.body?.blocked.down || this.body?.touching.down) 
 
     this.isRunning = this.runKey.isDown
     this.speed = this.isRunning ? 150 : 50
@@ -51,5 +52,9 @@ export class Kitty extends Character {
       // player.play('kitty_jump');
       // Нужно заменить на анимацию падения и прописать логику чтобы не пересекалась
     }
+  }
+
+  hurt() {
+    this.play('kitty_hurt',true)
   }
 }

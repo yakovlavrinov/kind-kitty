@@ -7,10 +7,11 @@ export abstract class Enemy extends Character {
   }
 
   protected abstract patrol(): void
-  protected abstract chasePlayer(): void
-  protected abstract attackPlayer(): void
-
-  public override update(): void {
+  protected abstract chase(): void
+  protected abstract attack(): void
+  
+  
+  public override update(...args: unknown[]): void {
     // Здесь общая логика определения состояния + вызов нужного метода
     // Или оставь абстрактным, если каждый враг сильно отличается
   }

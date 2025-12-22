@@ -57,6 +57,43 @@ export class PreloadScene extends Phaser.Scene {
       frameHeight: 64,
       endFrame: 7,
     })
+    this.load.spritesheet('kitty-attack', 'assets/kitty/attack.png', {
+      frameWidth: 80,
+      frameHeight: 64,
+      endFrame: 7,
+    })
+    this.load.spritesheet('kitty-hurt', 'assets/kitty/hurt.png', {
+      frameWidth: 80,
+      frameHeight: 64,
+      endFrame: 3,
+    })
+
+    // dog / пес
+    this.load.spritesheet('dog-idle', 'assets/dog/idle.png', {
+      frameWidth: 48,
+      frameHeight: 48,
+      endFrame: 3,
+    })
+    this.load.spritesheet('dog-walk', 'assets/dog/walk.png', {
+      frameWidth: 48,
+      frameHeight: 48,
+      endFrame: 5,
+    })
+    this.load.spritesheet('dog-attack', 'assets/dog/attack.png', {
+      frameWidth: 48,
+      frameHeight: 48,
+      endFrame: 3,
+    })
+    this.load.spritesheet('dog-hurt', 'assets/dog/hurt.png', {
+      frameWidth: 48,
+      frameHeight: 48,
+      endFrame: 1,
+    })
+    this.load.spritesheet('dog-death', 'assets/dog/death.png', {
+      frameWidth: 48,
+      frameHeight: 48,
+      endFrame: 3,
+    })
 
     // devilfan / чертофан
 

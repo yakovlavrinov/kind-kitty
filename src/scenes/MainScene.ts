@@ -1,4 +1,5 @@
 import { Devilfan } from '../entities/Devilfan'
+import { Dog } from '../entities/Dog'
 import { Food } from '../entities/Food'
 import { Kitty } from '../entities/Kitty'
 import { ParallaxBackground } from '../entities/ParallaxBackground'
@@ -6,6 +7,9 @@ import { createAllAnimations } from '../utils/animation'
 
 export class MainScene extends Phaser.Scene {
   private kitty!: Kitty
+  private dog!: Dog
+  private leftSensorDog!: Phaser.GameObjects.Zone
+  private rightSensorDog!: Phaser.GameObjects.Zone
   private devilfan!: Devilfan
   private background!: ParallaxBackground
   private map!: Phaser.Tilemaps.Tilemap
@@ -47,14 +51,28 @@ export class MainScene extends Phaser.Scene {
 
     createAllAnimations(this)
 
-    this.kitty = new Kitty(this, 1300, 90)
+    this.kitty = new Kitty(this, 1400, 200)
     this.kitty.play('kitty_idle', true)
+
+    this.dog = new Dog(this, 1300, 200)
+    this.dog.play('dog_idle', true)
+    this.dog.setTarget(this.kitty)
+    this.leftSensorDog = this.add.zone(0, 0, 4, this.dog.height)
+    this.physics.add.existing(this.leftSensorDog)
+
+    this.physics.add.collider(this.dog, platformsLayer, () => {
+      this.dog.setDogState('idle')
+    })
+
     this.devilfan = new Devilfan(this, 200, 100)
     this.devilfan.play('devilfan_idle', true)
 
     this.physics.add.collider(this.kitty, groundLayer)
+    this.physics.add.collider(this.dog, groundLayer)
     this.physics.add.collider(this.devilfan, groundLayer)
+
     this.physics.add.collider(this.kitty, platformsLayer)
+    this.physics.add.collider(this.dog, platformsLayer)
     this.physics.add.collider(this.devilfan, platformsLayer)
 
     this.scoreText = this.add
@@ -64,6 +82,16 @@ export class MainScene extends Phaser.Scene {
       })
       .setScrollFactor(0)
       .setDepth(100)
+
+    this.physics.add.collider(
+      this.kitty,
+      this.dog,
+      () => {
+        this.dog.setDogState('attack')
+      },
+      undefined,
+      this
+    )
 
     this.physics.add.overlap(this.kitty, this.foodGroup, this.collectFood, undefined, this)
 
@@ -92,6 +120,7 @@ export class MainScene extends Phaser.Scene {
   update() {
     if (this.gameOver) return
 
+    this.dog.update()
     this.kitty.update(this.cursors)
     this.background.update(this.kitty.body?.velocity.x || 0)
   }
