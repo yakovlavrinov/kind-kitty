@@ -1,5 +1,6 @@
 import { Devilfan } from '../entities/Devilfan'
-import { Dog } from '../entities/Dog'
+import { Dog, DOG_ANIMATIONS, DOG_STATE } from '../entities/Dog'
+
 import { Food } from '../entities/Food'
 import { Kitty } from '../entities/Kitty'
 import { ParallaxBackground } from '../entities/ParallaxBackground'
@@ -8,8 +9,6 @@ import { createAllAnimations } from '../utils/animation'
 export class MainScene extends Phaser.Scene {
   private kitty!: Kitty
   private dog!: Dog
-  private leftSensorDog!: Phaser.GameObjects.Zone
-  private rightSensorDog!: Phaser.GameObjects.Zone
   private devilfan!: Devilfan
   private background!: ParallaxBackground
   private map!: Phaser.Tilemaps.Tilemap
@@ -55,10 +54,8 @@ export class MainScene extends Phaser.Scene {
     this.kitty.play('kitty_idle', true)
 
     this.dog = new Dog(this, 1300, 200)
-    this.dog.play('dog_idle', true)
+    this.dog.play(DOG_ANIMATIONS.IDLE, true)
     this.dog.setTarget(this.kitty)
-    this.leftSensorDog = this.add.zone(0, 0, 4, this.dog.height)
-    this.physics.add.existing(this.leftSensorDog)
 
     this.physics.add.collider(this.dog, platformsLayer, () => {
       this.dog.setDogState('idle')
@@ -87,7 +84,7 @@ export class MainScene extends Phaser.Scene {
       this.kitty,
       this.dog,
       () => {
-        this.dog.setDogState('attack')
+        this.dog.setDogState(DOG_STATE.ATTACK)
       },
       undefined,
       this
