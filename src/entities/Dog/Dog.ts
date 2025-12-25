@@ -94,6 +94,7 @@ export class Dog extends Enemy {
     if (!this.target) {
       return
     }
+    this.target.hurt()
     this.setVelocityX(0)
     this.play(DOG_ANIMATIONS.ATTACK, true)
   }

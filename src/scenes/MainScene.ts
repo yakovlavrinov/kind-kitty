@@ -38,7 +38,6 @@ export class MainScene extends Phaser.Scene {
 
     const groundLayer = this.map.createLayer('ground', tileset, 0, 0)
     const platformsLayer = this.map.createLayer('platforms', tileset, 0, 0)
-    this.map.createLayer('mountain', tileset, 0, 0)
 
     if (!groundLayer) return
     groundLayer.setCollisionByProperty({ collides: true })
@@ -58,7 +57,7 @@ export class MainScene extends Phaser.Scene {
     this.dog.setTarget(this.kitty)
 
     this.physics.add.collider(this.dog, platformsLayer, () => {
-      this.dog.setDogState('idle')
+      this.dog.setDogState(DOG_STATE.IDLE)
     })
 
     this.devilfan = new Devilfan(this, 200, 100)
