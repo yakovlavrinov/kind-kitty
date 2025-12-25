@@ -25,6 +25,7 @@ export class MainScene extends Phaser.Scene {
   }
 
   create() {
+    this.gameOver = false
     this.physics.world.setBounds(0, 0, this.worldWidth, this.worldHeight)
 
     this.background = new ParallaxBackground(this)
@@ -49,7 +50,7 @@ export class MainScene extends Phaser.Scene {
 
     createAllAnimations(this)
 
-    this.kitty = new Kitty(this, 1400, 200)
+    this.kitty = new Kitty(this, 2200, 0)
     this.kitty.play('kitty_idle', true)
 
     this.dog = new Dog(this, 1300, 200)
@@ -60,6 +61,7 @@ export class MainScene extends Phaser.Scene {
       this.dog.setDogState(DOG_STATE.IDLE)
     })
 
+    this.createExit(2355, 45)
     this.devilfan = new Devilfan(this, 200, 100)
     this.devilfan.play('devilfan_idle', true)
 
@@ -152,6 +154,41 @@ export class MainScene extends Phaser.Scene {
           console.warn('Unknown food type:', obj.type)
           return
       }
+    })
+  }
+
+  private finishLevel() {
+    if (this.gameOver) return
+    this.gameOver = true
+
+    this.cameras.main.fadeOut(500, 0, 0, 0)
+
+    this.time.delayedCall(500, () => {
+      this.scene.restart({ reset: true })
+    })
+  }
+
+  private createExit(x: number, y: number, width = 30, height = 40) {
+    // Визуальная часть (прямоугольник)
+    const graphics = this.add.graphics()
+    graphics.fillStyle(0x1e1e1e, 1)
+    graphics.fillRect(x - width / 2, y - height, width, height)
+
+    graphics.lineStyle(3, 0xa65f00)
+    graphics.lineStyle(3, 0xa60000)
+    graphics.strokeRect(x - width / 2, y - height, width, height)
+
+    // Физическая зона
+    const zone = this.add.zone(x, y - height / 2, width, height)
+    this.physics.world.enable(zone)
+
+    const body = zone.body as Phaser.Physics.Arcade.Body
+    body.setAllowGravity(false)
+    body.setImmovable(true)
+
+    // Проверка пересечения
+    this.physics.add.overlap(this.kitty, zone, () => {
+      this.finishLevel()
     })
   }
 
