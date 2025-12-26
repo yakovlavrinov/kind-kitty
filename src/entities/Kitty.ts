@@ -112,6 +112,11 @@ export class Kitty extends Character {
         this.setVelocityX(currentSpeed)
         this.flipX = true
       }
+
+      if (cursors.up.isDown && onGround) {
+            this.setVelocityY(this.jumpVelocity);
+            this.play('kitty_jump', true);
+        }
       // Если клавиши отпущены → не трогаем velocity (оставляем для плавной остановки ниже)
     }
 
