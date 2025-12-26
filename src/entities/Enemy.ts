@@ -12,6 +12,7 @@ export abstract class Enemy extends Character {
   
   
   public override update(...args: unknown[]): void {
+    console.log(args)
     // Здесь общая логика определения состояния + вызов нужного метода
     // Или оставь абстрактным, если каждый враг сильно отличается
   }

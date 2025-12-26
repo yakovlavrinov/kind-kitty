@@ -6,11 +6,7 @@ export class Devilfan extends Enemy {
     this.body?.setSize(96, 96)
   }
 
-  update() {}
-
   patrol() {}
-
-  chasePlayer() {}
-
-  attackPlayer() {}
+  chase() {}
+  attack() {}
 }
