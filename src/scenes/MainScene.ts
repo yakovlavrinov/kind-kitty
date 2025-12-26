@@ -96,6 +96,19 @@ export class MainScene extends Phaser.Scene {
     this.cursors = this.input.keyboard!.createCursorKeys()
 
     this.setupCamera()
+    this.scale.on(
+      'orientationchange',
+      (orientation: string) => {
+        if (orientation === Phaser.Scale.PORTRAIT) {
+          this.scene.pause()
+          console.log('Пауза: портретная ориентация')
+        } else if (orientation === Phaser.Scale.LANDSCAPE) {
+          this.scene.resume()
+          console.log('Запуск: альбомная ориентация')
+        }
+      },
+      this
+    )
   }
 
   private setupCamera() {
@@ -117,7 +130,8 @@ export class MainScene extends Phaser.Scene {
 
   update() {
     if (this.gameOver) return
-
+    if (window.innerWidth <= 1024 && window.screen.orientation.type === 'portrait-primary') {
+    }
     this.dog.update()
     this.kitty.update(this.cursors)
     this.background.update(this.kitty.body?.velocity.x || 0)
