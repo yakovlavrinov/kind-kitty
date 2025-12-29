@@ -50,7 +50,7 @@ export class MainScene extends Phaser.Scene {
 
     createAllAnimations(this)
 
-    this.kitty = new Kitty(this, 2200, 0)
+    this.kitty = new Kitty(this, 100, 300)
     this.kitty.play('kitty_idle', true)
 
     this.dog = new Dog(this, 1300, 200)

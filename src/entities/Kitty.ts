@@ -58,6 +58,13 @@ export class Kitty extends Character {
             this.setVelocityX(this.isRunning ? -this.runSpeed : -this.speed)
             this.flipX = false
           }
+        } else if (Math.abs(deltaY) > Math.abs(deltaX)) {
+          if (deltaY < 0) {
+            const body = this.body as Phaser.Physics.Arcade.Body
+            if (body.onFloor()) {
+              this.setVelocityY(this.jumpVelocity)
+            }
+          }
         }
       }
     })
@@ -79,7 +86,7 @@ export class Kitty extends Character {
         ((duration < 200 && distance < 30) || // Короткий тап
           (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < -this.swipeThreshold)) // Свайп вверх
       ) {
-        this.setVelocityY(this.jumpVelocity)
+        // this.setVelocityY(this.jumpVelocity)
       }
 
       // Сбрасываем сенсорное состояние
@@ -114,38 +121,23 @@ export class Kitty extends Character {
       }
 
       if (cursors.up.isDown && onGround) {
-            this.setVelocityY(this.jumpVelocity);
-            this.play('kitty_jump', true);
-        }
+        this.setVelocityY(this.jumpVelocity)
+        this.play('kitty_jump', true)
+      }
       // Если клавиши отпущены → не трогаем velocity (оставляем для плавной остановки ниже)
     }
 
     // 3. Сенсорное управление (только при активном касании)
-    if (isTouchActive && this.isSwipeStarted) {
-      const pointer = this.scene.input.pointer1
-      const deltaX = pointer.x - this.swipeStartX
-
-      // Движение только если достаточно большой горизонтальный свайп
-      if (Math.abs(deltaX) > this.swipeThreshold) {
-        this.isRunning = Math.abs(deltaX) > this.swipeThreshold * 2
-        this.touchRun = this.isRunning
-        const currentSpeed = this.isRunning ? this.runSpeed : this.speed
-
-        if (deltaX > 0) {
-          this.setVelocityX(currentSpeed)
-          this.flipX = true
-        } else {
-          this.setVelocityX(-currentSpeed)
-          this.flipX = false
-        }
-      }
-    }
 
     // 4. Анимации движения (независимо от источника ввода)
+
     if (absVelX > 10 && onGround) {
-      this.isRunning = this.isRunning || this.touchRun // обновляем на всякий случай
-      this.animation = this.isRunning ? 'kitty_run' : 'kitty_walk'
-      this.play(this.animation, true)
+      const body = this.body as Phaser.Physics.Arcade.Body
+     
+        this.isRunning = this.isRunning || this.touchRun // обновляем на всякий случай
+        this.animation = this.isRunning ? 'kitty_run' : 'kitty_walk'
+        this.play(this.animation, true)
+      
     } else if (absVelX <= 10 && onGround) {
       this.play('kitty_idle', true)
     }
@@ -154,8 +146,6 @@ export class Kitty extends Character {
     if (!onGround) {
       if (body.velocity.y < 0) {
         this.play('kitty_jump', true)
-      } else if (body.velocity.y > 0) {
-        this.play('kitty_fall', true) // если анимация существует
       }
     }
 
