@@ -1,172 +1,163 @@
 import { Character } from './Character'
 
+export const KITTY_STATE = {
+  IDLE: 'idle',
+  WALK: 'walk',
+  JUMP: 'jump',
+  RUN: 'run',
+  ATTACK: 'attack',
+  HURT: 'hurt',
+} as const
+
+export const KITTY_WALK_SPEED = 50
+export const KITTY_RUN_SPEED = 150
+
+export type KittyState = (typeof KITTY_STATE)[keyof typeof KITTY_STATE]
+
+export interface KittyStates extends Record<KittyState, () => void> {}
+
 export class Kitty extends Character {
+  private kittyState: KittyState = KITTY_STATE.IDLE
+  private direction: 1 | -1 = 1
   private runKey: Phaser.Input.Keyboard.Key
-  private isRunning = false
-  private speed = 50 // Скорость ходьбы
-  private runSpeed = 150 // Скорость бега
-  private jumpVelocity = -190 // Сила прыжка
-  private animation = ''
+
+  private kittyStates = {
+    idle: () => this.idle(),
+    walk: () => this.walk(),
+    jump: () => this.jump(),
+    run: () => this.run(),
+    attack: () => this.attack(),
+    hurt: () => this.hurt(),
+  }
 
   // Переменные для сенсорного управления
-  private swipeStartX: number = 0
-  private swipeStartY: number = 0
-  private swipeThreshold = 50 // Минимальное расстояние для свайпа
-  // private isTouchMoving = false // Флаг активного сенсорного движения
-  private touchRun = false // Флаг бега для сенсорного ввода
-  private isSwipeStarted = false // Флаг начала свайпа
+  private swipeStartX = 0
+  private swipeStartY = 0
+  private swipeThreshold = 50
+ 
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'kitty')
 
     this.setCollideWorldBounds(true)
+
     this.body?.setSize(20, 28)
     this.body?.setOffset(30, 20)
-
-    // Инициализация клавиатурного ввода
     this.runKey = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT)
 
-    // Инициализация сенсорного ввода
+    //  Сенсорное управление
     const input = scene.input
 
-    // Начало касания
     input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       this.swipeStartX = pointer.x
       this.swipeStartY = pointer.y
-      this.isSwipeStarted = true
+     
     })
 
-    // Движение пальца
     input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-      if (!pointer.isDown || !this.isSwipeStarted) return
+      if (!pointer.isDown) return
+      
+        const deltaX = pointer.x - this.swipeStartX
+        const deltaY = pointer.y - this.swipeStartY
 
-      const deltaX = pointer.x - this.swipeStartX
-      const deltaY = pointer.y - this.swipeStartY
-
-      // Определяем, является ли это свайпом
-      if (Math.abs(deltaX) > this.swipeThreshold || Math.abs(deltaY) > this.swipeThreshold) {
-        // this.isTouchMoving = true
-
-        // Горизонтальный свайп: движение
-        if (Math.abs(deltaX) > Math.abs(deltaY)) {
-          this.isRunning = Math.abs(deltaX) > this.swipeThreshold * 2 // Бег при длинном свайпе
-          this.touchRun = this.isRunning
-          if (deltaX > 0) {
-            this.setVelocityX(this.isRunning ? this.runSpeed : this.speed)
-            this.flipX = true
-          } else {
-            this.setVelocityX(this.isRunning ? -this.runSpeed : -this.speed)
-            this.flipX = false
-          }
-        } else if (Math.abs(deltaY) > Math.abs(deltaX)) {
-          if (deltaY < 0) {
-            const body = this.body as Phaser.Physics.Arcade.Body
-            if (body.onFloor()) {
-              this.setVelocityY(this.jumpVelocity)
+        if (Math.abs(deltaX) > this.swipeThreshold || Math.abs(deltaY) > this.swipeThreshold) {
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            if (deltaX > 0) {
+              this.direction = 1
+              this.flipX = true
+              this.setKittyState('walk')
+            } else {
+              this.direction = -1
+              this.flipX = false
+              this.setKittyState('walk')
+            }
+          } else if (Math.abs(deltaX) < Math.abs(deltaY)) {
+            if(deltaY < 0) {
+              this.setKittyState('jump')
             }
           }
         }
-      }
+      
     })
 
-    // Конец касания
     input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (!this.isSwipeStarted) return
-
-      const deltaX = pointer.x - this.swipeStartX
-      const deltaY = pointer.y - this.swipeStartY
-      const duration = pointer.upTime - pointer.downTime
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
-
-      const onGround = this.body?.blocked.down || this.body?.touching.down
-
-      // Короткий тап или свайп вверх — прыжок
-      if (
-        onGround &&
-        ((duration < 200 && distance < 30) || // Короткий тап
-          (Math.abs(deltaY) > Math.abs(deltaX) && deltaY < -this.swipeThreshold)) // Свайп вверх
-      ) {
-        // this.setVelocityY(this.jumpVelocity)
-      }
-
-      // Сбрасываем сенсорное состояние
-      this.isSwipeStarted = false
-      // this.isTouchMoving = false
-      this.touchRun = false
+      this.onGround && this.setKittyState('idle')
     })
   }
 
   update(cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
-    const body = this.body
-    if (!body) return
+    const isRunning = this.runKey.isDown ? KITTY_STATE.RUN : KITTY_STATE.WALK
 
-    const onGround = body.blocked.down || body.touching.down
-    const velX = body.velocity.x || 0
-    const absVelX = Math.abs(velX)
+    // if (cursors.left.isDown) {
+    //   this.direction = -1
+    //   this.flipX = false
 
-    // 1. Определяем, активно ли сейчас касание
-    const isTouchActive = this.scene.input.pointer1.isDown // или activePointer.isDown
+    //   this.setKittyState(isRunning)
+    // } else if (cursors.right.isDown) {
+    //   this.direction = 1
+    //   this.flipX = true
 
-    // 2. Клавиатурное управление (работает, если НЕТ активного касания)
-    if (!isTouchActive) {
-      this.isRunning = this.runKey.isDown
-      const currentSpeed = this.isRunning ? this.runSpeed : this.speed
+    //   this.setKittyState(isRunning)
+    // } else {
+    //   this.onGround && this.setKittyState(KITTY_STATE.IDLE)
+    //   this.flipX = this.direction > 0
+    // }
 
-      if (cursors.left.isDown) {
-        this.setVelocityX(-currentSpeed)
-        this.flipX = false
-      } else if (cursors.right.isDown) {
-        this.setVelocityX(currentSpeed)
-        this.flipX = true
-      }
+    // if (cursors.up.isDown) {
+    //   this.onGround && this.setKittyState(KITTY_STATE.JUMP)
+    //   this.flipX = this.direction > 0
+    // }
 
-      if (cursors.up.isDown && onGround) {
-        this.setVelocityY(this.jumpVelocity)
-        this.play('kitty_jump', true)
-      }
-      // Если клавиши отпущены → не трогаем velocity (оставляем для плавной остановки ниже)
+    if (!this.onGround && this.body?.velocity.y !== 0) {
+      // this.play('kitty_jump', true);
+      // TODO нужно заменить на анимацию падения и прописать логику чтобы не пересекалась
     }
+    
 
-    // 3. Сенсорное управление (только при активном касании)
+    this.executeState()
+  }
 
-    // 4. Анимации движения (независимо от источника ввода)
+  executeState() {
+    // TODO оптимизировать от лишних вызовов
+      this.kittyStates[this.kittyState]()
+    
+  }
 
-    if (absVelX > 10 && onGround) {
-      const body = this.body as Phaser.Physics.Arcade.Body
-     
-        this.isRunning = this.isRunning || this.touchRun // обновляем на всякий случай
-        this.animation = this.isRunning ? 'kitty_run' : 'kitty_walk'
-        this.play(this.animation, true)
-      
-    } else if (absVelX <= 10 && onGround) {
-      this.play('kitty_idle', true)
-    }
+  idle() {
+    this.setVelocityX(0)
+    this.play('kitty_idle', true)
+  }
+  walk() {
+    this.setVelocityX(this.direction * KITTY_WALK_SPEED)
+    this.onGround && this.play('kitty_walk', true)
+  }
 
-    // 5. Анимации в воздухе
-    if (!onGround) {
-      if (body.velocity.y < 0) {
-        this.play('kitty_jump', true)
-      }
-    }
-
-    // 6. Плавная остановка, только когда нет никакого активного ввода
-    const noInput =
-      !isTouchActive && !cursors.left.isDown && !cursors.right.isDown && !this.runKey.isDown
-
-    if (noInput && absVelX > 0 && onGround) {
-      this.setVelocityX(velX * 0.88) // чуть более резкая остановка
-      if (absVelX < 12) {
-        this.setVelocityX(0)
-      }
-    }
-
-    // Сбрасываем touchRun, если касание закончилось
-    if (!isTouchActive) {
-      this.touchRun = false
+  jump() {
+    if (this.onGround) {
+      this.setVelocityY(-190)
+      this.play('kitty_jump', true)
     }
   }
 
+  run() {
+    this.setVelocityX(this.direction * KITTY_RUN_SPEED)
+    this.onGround && this.play('kitty_run', true)
+  }
+  attack() {}
+
   hurt() {
     this.play('kitty_hurt', true)
+  }
+
+  setKittyState(newKittyState: KittyState) {
+    if (newKittyState !== this.kittyState) {
+      this.oldKittyState = this.kittyState
+      this.kittyState = newKittyState
+    }
+  }
+
+  get onGround() {
+    const body = this.body as Phaser.Physics.Arcade.Body
+    return body.onFloor()
   }
 }
