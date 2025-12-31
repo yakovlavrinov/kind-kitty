@@ -34,7 +34,7 @@ export class Kitty extends Character {
   private swipeStartX = 0
   private swipeStartY = 0
   private swipeThreshold = 50
- 
+  private isSwipeStarted = false
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, 'kitty')
@@ -51,76 +51,80 @@ export class Kitty extends Character {
     input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       this.swipeStartX = pointer.x
       this.swipeStartY = pointer.y
-     
+      this.isSwipeStarted = true
     })
 
     input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
       if (!pointer.isDown) return
-      
-        const deltaX = pointer.x - this.swipeStartX
-        const deltaY = pointer.y - this.swipeStartY
 
-        if (Math.abs(deltaX) > this.swipeThreshold || Math.abs(deltaY) > this.swipeThreshold) {
-          if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            if (deltaX > 0) {
-              this.direction = 1
-              this.flipX = true
-              this.setKittyState('walk')
-            } else {
-              this.direction = -1
-              this.flipX = false
-              this.setKittyState('walk')
-            }
-          } else if (Math.abs(deltaX) < Math.abs(deltaY)) {
-            if(deltaY < 0) {
-              this.setKittyState('jump')
-            }
+      const deltaX = pointer.x - this.swipeStartX
+      const deltaY = pointer.y - this.swipeStartY
+
+      if (Math.abs(deltaX) > this.swipeThreshold || Math.abs(deltaY) > this.swipeThreshold) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          const isRunning =
+            Math.abs(deltaX) > this.swipeThreshold * 2 || Math.abs(deltaY) > this.swipeThreshold * 2
+              ? KITTY_STATE.RUN
+              : KITTY_STATE.WALK
+          if (deltaX > 0) {
+            this.direction = 1
+            this.flipX = true
+            this.setKittyState(isRunning)
+          } else {
+            this.direction = -1
+            this.flipX = false
+            this.setKittyState(isRunning)
+          }
+        } else if (Math.abs(deltaX) < Math.abs(deltaY)) {
+          if (deltaY < 0) {
+            this.setKittyState('jump')
           }
         }
-      
+      }
     })
 
     input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      this.onGround && this.setKittyState('idle')
+      this.isSwipeStarted = false
     })
   }
 
   update(cursors: Phaser.Types.Input.Keyboard.CursorKeys) {
     const isRunning = this.runKey.isDown ? KITTY_STATE.RUN : KITTY_STATE.WALK
+    // TODO изменить название переменной состояние движения
+    this.flipX = this.direction > 0
+    if (!this.isSwipeStarted) {
+      if (cursors.left.isDown) {
+        this.direction = -1
+        this.flipX = false
 
-    // if (cursors.left.isDown) {
-    //   this.direction = -1
-    //   this.flipX = false
+        this.setKittyState(isRunning)
+      } else if (cursors.right.isDown) {
+        this.direction = 1
+        this.flipX = true
 
-    //   this.setKittyState(isRunning)
-    // } else if (cursors.right.isDown) {
-    //   this.direction = 1
-    //   this.flipX = true
+        this.setKittyState(isRunning)
+      } else {
+        this.onGround && this.setKittyState(KITTY_STATE.IDLE)
+        this.flipX = this.direction > 0
+      }
 
-    //   this.setKittyState(isRunning)
-    // } else {
-    //   this.onGround && this.setKittyState(KITTY_STATE.IDLE)
-    //   this.flipX = this.direction > 0
-    // }
+      if (cursors.up.isDown) {
+        this.onGround && this.setKittyState(KITTY_STATE.JUMP)
+        this.flipX = this.direction > 0
+      }
 
-    // if (cursors.up.isDown) {
-    //   this.onGround && this.setKittyState(KITTY_STATE.JUMP)
-    //   this.flipX = this.direction > 0
-    // }
-
-    if (!this.onGround && this.body?.velocity.y !== 0) {
-      // this.play('kitty_jump', true);
-      // TODO нужно заменить на анимацию падения и прописать логику чтобы не пересекалась
+      if (!this.onGround && this.body?.velocity.y !== 0) {
+        // this.play('kitty_jump', true);
+        // TODO нужно заменить на анимацию падения и прописать логику чтобы не пересекалась
+      }
     }
-    
 
     this.executeState()
   }
 
   executeState() {
     // TODO оптимизировать от лишних вызовов
-      this.kittyStates[this.kittyState]()
-    
+    this.kittyStates[this.kittyState]()
   }
 
   idle() {
@@ -151,7 +155,6 @@ export class Kitty extends Character {
 
   setKittyState(newKittyState: KittyState) {
     if (newKittyState !== this.kittyState) {
-      this.oldKittyState = this.kittyState
       this.kittyState = newKittyState
     }
   }
