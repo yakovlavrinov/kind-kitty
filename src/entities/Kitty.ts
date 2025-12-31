@@ -83,7 +83,7 @@ export class Kitty extends Character {
       }
     })
 
-    input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
+    input.on('pointerup', () => {
       this.isSwipeStarted = false
     })
   }

@@ -99,10 +99,12 @@ export class MainScene extends Phaser.Scene {
     this.scale.on(
       'orientationchange',
       (orientation: string) => {
-        if (orientation === Phaser.Scale.PORTRAIT) {
+        if (
+          orientation === Phaser.Scale.PORTRAIT
+        ) {
           this.scene.pause()
           console.log('Пауза: портретная ориентация')
-        } else if (orientation === Phaser.Scale.LANDSCAPE) {
+        } else {
           this.scene.resume()
           console.log('Запуск: альбомная ориентация')
         }
