@@ -1,4 +1,5 @@
 import { MainScene } from '../scenes/MainScene'
+import { MenuScene } from '../scenes/MenuScene'
 import { PreloadScene } from '../scenes/PreloadScene'
 import { DESKTOP_HEIGHT, DESKTOP_WIDTH, GRAVITY } from '../utils/constants'
 
@@ -13,7 +14,7 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
       gravity: { x: 0, y: GRAVITY },
     },
   },
-  scene: [PreloadScene, MainScene],
+  scene: [PreloadScene, MenuScene, MainScene],
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,

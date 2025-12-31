@@ -4,6 +4,76 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   preload() {
+    // Размеры экрана
+    const width = this.cameras.main.width
+    const height = this.cameras.main.height
+
+    // Фон бара (тёмный прямоугольник)
+    const progressBox = this.add.graphics()
+    progressBox.fillStyle(0x222222, 0.8)
+    progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50)
+
+    // Полоса прогресса (белая)
+    const progressBar = this.add.graphics()
+
+    // Текст "Загрузка..."
+    const loadingText = this.add
+      .text(width / 2, height / 2 - 60, 'Загрузка...', {
+        fontSize: '24px',
+        color: '#ffffff',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5)
+
+    // Процент
+    const percentText = this.add
+      .text(width / 2, height / 2, '0%', {
+        fontSize: '20px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 4,
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5)
+
+    // Текущий файл
+    const assetText = this.add
+      .text(width / 2, height / 2 + 40, '', {
+        fontSize: '18px',
+        color: '#ffffff',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5)
+
+    // Обработчики событий загрузки
+    this.load.on('progress', (value: number) => {
+      percentText.setText(Math.round(value * 100) + '%')
+
+      progressBar.clear()
+      progressBar.fillStyle(0xffffff, 1)
+      progressBar.fillRect(width / 2 - 150, height / 2 - 15, 300 * value, 30)
+    })
+
+    this.load.on('fileprogress', (file: Phaser.Loader.File) => {
+      assetText.setText('Загружается: ' + file.key)
+    })
+
+    this.load.on('complete', () => {
+      // Уничтожаем UI
+      progressBox.destroy()
+      progressBar.destroy()
+      loadingText.destroy()
+      percentText.destroy()
+      assetText.destroy()
+
+      // Переход к следующей сцене
+      // this.scene.start('GameScene');
+    })
+
+    for (let i = 0; i < 5000; i++) {
+      this.load.image('resource ' + i, 'assets/food/chicken_leg.png')
+    }
+
     // food
     this.load.image('chicken-leg', 'assets/food/chicken_leg.png')
     this.load.image('fish', 'assets/food/fish.png')
@@ -105,6 +175,6 @@ export class PreloadScene extends Phaser.Scene {
   }
 
   create() {
-    this.scene.start('MainScene')
+    this.scene.start('MenuScene')
   }
 }
