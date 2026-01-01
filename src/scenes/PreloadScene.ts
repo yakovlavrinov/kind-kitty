@@ -1,78 +1,13 @@
 export class PreloadScene extends Phaser.Scene {
+  private progressBar!: Phaser.GameObjects.Graphics
+  private percentText!: Phaser.GameObjects.Text
+
   constructor() {
     super('Preload')
   }
 
   preload() {
-    // Размеры экрана
-    const width = this.cameras.main.width
-    const height = this.cameras.main.height
-
-    // Фон бара (тёмный прямоугольник)
-    const progressBox = this.add.graphics()
-    progressBox.fillStyle(0x222222, 0.8)
-    progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50)
-
-    // Полоса прогресса (белая)
-    const progressBar = this.add.graphics()
-
-    // Текст "Загрузка..."
-    const loadingText = this.add
-      .text(width / 2, height / 2 - 60, 'Загрузка...', {
-        fontSize: '24px',
-        color: '#ffffff',
-        fontFamily: 'monospace',
-      })
-      .setOrigin(0.5)
-
-    // Процент
-    const percentText = this.add
-      .text(width / 2, height / 2, '0%', {
-        fontSize: '20px',
-        color: '#ffffff',
-        stroke: '#000000',
-        strokeThickness: 4,
-        fontFamily: 'monospace',
-      })
-      .setOrigin(0.5)
-
-    // Текущий файл
-    const assetText = this.add
-      .text(width / 2, height / 2 + 40, '', {
-        fontSize: '18px',
-        color: '#ffffff',
-        fontFamily: 'monospace',
-      })
-      .setOrigin(0.5)
-
-    // Обработчики событий загрузки
-    this.load.on('progress', (value: number) => {
-      percentText.setText(Math.round(value * 100) + '%')
-
-      progressBar.clear()
-      progressBar.fillStyle(0xffffff, 1)
-      progressBar.fillRect(width / 2 - 150, height / 2 - 15, 300 * value, 30)
-    })
-
-    this.load.on('fileprogress', (file: Phaser.Loader.File) => {
-      assetText.setText('Загружается: ' + file.key)
-    })
-
-    this.load.on('complete', () => {
-      // Уничтожаем UI
-      progressBox.destroy()
-      progressBar.destroy()
-      loadingText.destroy()
-      percentText.destroy()
-      assetText.destroy()
-
-      // Переход к следующей сцене
-      // this.scene.start('GameScene');
-    })
-
-    for (let i = 0; i < 5000; i++) {
-      this.load.image('resource ' + i, 'assets/food/chicken_leg.png')
-    }
+    this.loader()
 
     // food
     this.load.image('chicken-leg', 'assets/food/chicken_leg.png')
@@ -177,4 +112,127 @@ export class PreloadScene extends Phaser.Scene {
   create() {
     this.scene.start('MenuScene')
   }
+
+  loader() {
+    // Размеры экрана
+    const width = this.cameras.main.width
+    const height = this.cameras.main.height
+
+    // Фон бара (тёмный прямоугольник)
+    const progressBox = this.add.graphics()
+    progressBox.fillStyle(0x222222, 0.8)
+    progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50)
+
+    // Полоса прогресса (белая)
+    const progressBar = this.add.graphics()
+
+    // Текст "Загрузка..."
+    const loadingText = this.add
+      .text(width / 2, height / 2 - 60, 'Загрузка...', {
+        fontSize: '24px',
+        color: '#ffffff',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5)
+
+    // Процент
+    const percentText = this.add
+      .text(width / 2, height / 2, '0%', {
+        fontSize: '20px',
+        color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 4,
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5)
+
+    // Текущий файл
+    const assetText = this.add
+      .text(width / 2, height / 2 + 40, '', {
+        fontSize: '18px',
+        color: '#ffffff',
+        fontFamily: 'monospace',
+      })
+      .setOrigin(0.5)
+
+    // Обработчики событий загрузки
+    this.load.on('progress', (value: number) => {
+      percentText.setText(Math.round(value * 100) + '%')
+      progressBar.clear()
+      progressBar.fillStyle(0xffffff, 1)
+      progressBar.fillRect(width / 2 - 150, height / 2 - 15, 300 * value, 30)
+    })
+
+    this.load.on('fileprogress', (file: Phaser.Loader.File) => {
+      assetText.setText('Загружается: ' + file.key)
+    })
+
+    this.load.on('complete', () => {
+      // Уничтожаем UI
+      progressBox.destroy()
+      progressBar.destroy()
+      loadingText.destroy()
+      percentText.destroy()
+      assetText.destroy()
+    })
+    //  Мок ресурсы для увелечения времени загрузки
+    for (let i = 0; i < 500; i++) {
+      this.load.image('resource ' + i, 'assets/star.png')
+    }
+  }
+
+  private createLoadingUi() {
+    const width = this.cameras.main.width
+    const height = this.cameras.main.height
+    const centerX = width / 2
+    const centerY = height / 2
+    const barX = centerX - 160
+    const barY = centerY - 25
+    const barWidth = 320
+    const barHeight = 50
+
+    // Общий стиль для текстов
+    const textStyle: Phaser.Types.GameObjects.Text.TextStyle = {
+      fontFamily: 'monospace',
+      color: '#ffffff',
+    }
+
+    // Фон бара
+    const progressBox = this.add.graphics()
+    progressBox.fillStyle(0x222222, 0.8)
+    progressBox.fillRect(barX, barY, barWidth, barHeight)
+
+    // Полоса прогресса
+    this.progressBar = this.add.graphics()
+
+    // Текст "Загрузка..."
+    this.add
+      .text(centerX, centerY - 60, 'Загрузка...', {
+        ...textStyle,
+        fontSize: '24px',
+      })
+      .setOrigin(0, 5)
+
+    // Процент
+    this.percentText = this.add
+      .text(centerX, centerY, '0%', {
+        ...textStyle,
+        fontSize: '20px',
+        stroke: '#000000',
+        strokeThickness: 4,
+      })
+      .setOrigin(0, 5)
+      
+    // Текущий файл
+    this.add
+      .text(centerX, centerY + 40, '', {
+        ...textStyle,
+        fontSize: '18px',
+      })
+      .setOrigin(0.5)
+  }
+
+  private setupLoadingEvents() {}
+
+  private loadMockAssets() {}
 }
