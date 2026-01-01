@@ -1,6 +1,7 @@
 export class PreloadScene extends Phaser.Scene {
   private progressBar!: Phaser.GameObjects.Graphics
   private percentText!: Phaser.GameObjects.Text
+  private assetText!: Phaser.GameObjects.Text
 
   constructor() {
     super('Preload')
@@ -113,72 +114,12 @@ export class PreloadScene extends Phaser.Scene {
     this.scene.start('MenuScene')
   }
 
-  loader() {
-    // Размеры экрана
-    const width = this.cameras.main.width
-    const height = this.cameras.main.height
+  
 
-    // Фон бара (тёмный прямоугольник)
-    const progressBox = this.add.graphics()
-    progressBox.fillStyle(0x222222, 0.8)
-    progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50)
-
-    // Полоса прогресса (белая)
-    const progressBar = this.add.graphics()
-
-    // Текст "Загрузка..."
-    const loadingText = this.add
-      .text(width / 2, height / 2 - 60, 'Загрузка...', {
-        fontSize: '24px',
-        color: '#ffffff',
-        fontFamily: 'monospace',
-      })
-      .setOrigin(0.5)
-
-    // Процент
-    const percentText = this.add
-      .text(width / 2, height / 2, '0%', {
-        fontSize: '20px',
-        color: '#ffffff',
-        stroke: '#000000',
-        strokeThickness: 4,
-        fontFamily: 'monospace',
-      })
-      .setOrigin(0.5)
-
-    // Текущий файл
-    const assetText = this.add
-      .text(width / 2, height / 2 + 40, '', {
-        fontSize: '18px',
-        color: '#ffffff',
-        fontFamily: 'monospace',
-      })
-      .setOrigin(0.5)
-
-    // Обработчики событий загрузки
-    this.load.on('progress', (value: number) => {
-      percentText.setText(Math.round(value * 100) + '%')
-      progressBar.clear()
-      progressBar.fillStyle(0xffffff, 1)
-      progressBar.fillRect(width / 2 - 150, height / 2 - 15, 300 * value, 30)
-    })
-
-    this.load.on('fileprogress', (file: Phaser.Loader.File) => {
-      assetText.setText('Загружается: ' + file.key)
-    })
-
-    this.load.on('complete', () => {
-      // Уничтожаем UI
-      progressBox.destroy()
-      progressBar.destroy()
-      loadingText.destroy()
-      percentText.destroy()
-      assetText.destroy()
-    })
-    //  Мок ресурсы для увелечения времени загрузки
-    for (let i = 0; i < 500; i++) {
-      this.load.image('resource ' + i, 'assets/star.png')
-    }
+  loader () {
+    this.createLoadingUi()
+    this.setupLoadingEvents()
+    this.loadMockAssets()
   }
 
   private createLoadingUi() {
@@ -211,7 +152,7 @@ export class PreloadScene extends Phaser.Scene {
         ...textStyle,
         fontSize: '24px',
       })
-      .setOrigin(0, 5)
+      .setOrigin(0.5)
 
     // Процент
     this.percentText = this.add
@@ -221,10 +162,10 @@ export class PreloadScene extends Phaser.Scene {
         stroke: '#000000',
         strokeThickness: 4,
       })
-      .setOrigin(0, 5)
-      
+      .setOrigin(0.5)
+
     // Текущий файл
-    this.add
+    this.assetText = this.add
       .text(centerX, centerY + 40, '', {
         ...textStyle,
         fontSize: '18px',
@@ -232,7 +173,27 @@ export class PreloadScene extends Phaser.Scene {
       .setOrigin(0.5)
   }
 
-  private setupLoadingEvents() {}
+  private setupLoadingEvents() {
+    this.load.on('progress', (value: number) => {
+      this.percentText.setText(Math.round(value * 100) + '%')
+      this.progressBar.clear()
+      this.progressBar.fillStyle(0xffffff, 1)
+      this.progressBar.fillRect(
+        this.cameras.main.width / 2 - 150,
+        this.cameras.main.height / 2 - 15,
+        300 * value,
+        30
+      )
+    })
 
-  private loadMockAssets() {}
+    this.load.on('fileprogress', (file: Phaser.Loader.File) => {
+      this.assetText.setText('Загружается: ' + file.key)
+    })
+  }
+
+  private loadMockAssets() {
+    for (let i = 0; i < 500; i++) {
+      this.load.image('resource ' + i, 'assets/star.png')
+    }
+  }
 }
