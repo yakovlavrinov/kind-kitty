@@ -17,6 +17,7 @@ export class MainScene extends Phaser.Scene {
   private worldWidth = 2400
   private worldHeight = 360
   private scoreText!: Phaser.GameObjects.Text
+  private heartsText!: Phaser.GameObjects.Text
   private score = 0
   private gameOver = false
 
@@ -81,6 +82,20 @@ export class MainScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(100)
 
+    this.heartsText = this.add
+      .text(
+        this.scale.width - 16, // правый верхний угол
+        16,
+        '♥️♥️♥️♥️♥️♥️♥️♥️♥️', 
+        {
+          fontSize: '20px',
+          color: '#ff0000',
+        }
+      )
+      .setOrigin(1, 0) // выравнивание по правому верхнему углу
+      .setScrollFactor(0)
+      .setDepth(100)
+
     this.physics.add.collider(
       this.kitty,
       this.dog,
@@ -99,9 +114,7 @@ export class MainScene extends Phaser.Scene {
     this.scale.on(
       'orientationchange',
       (orientation: string) => {
-        if (
-          orientation === Phaser.Scale.PORTRAIT
-        ) {
+        if (orientation === Phaser.Scale.PORTRAIT) {
           this.scene.pause()
           console.log('Пауза: портретная ориентация')
         } else {
