@@ -222,3 +222,5 @@ export class PreloadScene extends Phaser.Scene {
     })
   }
 }
+
+// TODO подумать над загрузчиками, вынести переменные, выделить UI (хелперы или класс)
